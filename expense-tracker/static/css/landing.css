@@ -1,0 +1,225 @@
+/* ------------------------------------------------------------------ */
+/* Landing hero (v2) — overrides only the hero section                 */
+/* ------------------------------------------------------------------ */
+
+.lp-hero {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 4rem 2rem 4rem;
+    text-align: center;
+}
+
+/* Badge ----------------------------------------------------------- */
+
+.lp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    margin-bottom: 2rem;
+}
+
+.lp-badge::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+}
+
+/* Headline -------------------------------------------------------- */
+
+.lp-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+}
+
+.lp-title .lp-title-accent {
+    display: block;
+    color: var(--accent);
+}
+
+/* Subtitle -------------------------------------------------------- */
+
+.lp-subtitle {
+    font-size: 1.1rem;
+    color: var(--ink-muted);
+    line-height: 1.6;
+    max-width: 620px;
+    margin: 0 auto 2.5rem;
+}
+
+/* Actions --------------------------------------------------------- */
+
+.lp-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 4rem;
+    flex-wrap: wrap;
+}
+
+.lp-btn {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.95rem 1.75rem;
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    text-decoration: none;
+}
+
+.lp-btn:hover {
+    background: var(--accent);
+    transform: translateY(-1px);
+}
+
+[data-theme="dark"] .lp-btn {
+    background: var(--paper-card);
+    color: var(--ink);
+}
+
+[data-theme="dark"] .lp-btn:hover {
+    background: var(--accent);
+    color: #e8f0eb;
+}
+
+/* Browser-window mock --------------------------------------------- */
+
+.lp-window {
+    background: var(--paper-warm);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.06);
+}
+
+.lp-window-bar {
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.25rem 0 1rem;
+}
+
+.lp-window-bar span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: block;
+}
+
+.lp-dot-r { background: #ec6a5e; }
+.lp-dot-y { background: #f5bf4f; }
+.lp-dot-g { background: #62c554; }
+
+/* Stat cards ------------------------------------------------------ */
+
+.lp-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.lp-stat {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    text-align: left;
+}
+
+.lp-stat-label {
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    margin-bottom: 0.5rem;
+}
+
+.lp-stat-value {
+    font-family: var(--font-display);
+    font-size: 1.85rem;
+    color: var(--ink);
+    line-height: 1.1;
+    margin-bottom: 0.6rem;
+}
+
+.lp-stat-meta {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.lp-meta-up    { color: var(--danger); }
+.lp-meta-good  { color: var(--accent); }
+.lp-meta-muted { color: var(--ink-muted); font-weight: 400; }
+
+/* Category bars --------------------------------------------------- */
+
+.lp-bars {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem 1.5rem 1.25rem;
+}
+
+.lp-bar-row {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.9rem;
+}
+
+.lp-bar-row:last-child { margin-bottom: 0; }
+
+.lp-bar-cat {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    font-weight: 500;
+}
+
+.lp-bar-track {
+    height: 9px;
+    background: var(--border-soft);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.lp-bar {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.lp-bar-food   { background: #e8a04a; }
+.lp-bar-travel { background: #5b8dd1; }
+.lp-bar-bills  { background: #8a76c4; }
+
+/* Responsive ------------------------------------------------------ */
+
+@media (max-width: 760px) {
+    .lp-hero { padding: 2.5rem 1.25rem 2.5rem; }
+    .lp-actions { margin-bottom: 2.5rem; }
+    .lp-window { padding: 1rem; }
+    .lp-stats { grid-template-columns: 1fr; gap: 0.75rem; }
+    .lp-stat { padding: 1rem 1.15rem; }
+    .lp-stat-value { font-size: 1.5rem; }
+    .lp-bar-row { grid-template-columns: 60px 1fr; gap: 0.75rem; }
+}
+
+@media (max-width: 420px) {
+    .lp-btn { width: 100%; text-align: center; }
+}
