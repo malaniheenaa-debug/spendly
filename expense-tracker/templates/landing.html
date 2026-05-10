@@ -4,6 +4,79 @@
 
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+<style>
+    .lp-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.72);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 1.5rem;
+    }
+
+    .lp-modal.is-open { display: flex; }
+
+    .lp-modal-card {
+        position: relative;
+        background: #000;
+        border-radius: var(--radius-lg);
+        width: 100%;
+        max-width: 880px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+    }
+
+    .lp-modal-close {
+        position: absolute;
+        top: -2.75rem;
+        right: 0;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 2rem;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0.25rem 0.6rem;
+        transition: color 0.2s;
+    }
+
+    .lp-modal-close:hover { color: var(--accent-2); }
+
+    .lp-modal-video {
+        position: relative;
+        width: 100%;
+        padding-top: 56.25%;
+    }
+
+    .lp-modal-video iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+
+    body.lp-modal-open { overflow: hidden; }
+
+    .lp-sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    @media (max-width: 600px) {
+        .lp-modal { padding: 1rem; }
+        .lp-modal-close { top: -2.25rem; font-size: 1.75rem; }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -23,7 +96,7 @@
 
     <div class="lp-actions">
         <a href="{{ url_for('register') }}" class="lp-btn">Create free account</a>
-        <a href="#features" class="lp-btn">See how it works</a>
+        <a href="#" class="lp-btn" id="howItWorksBtn">See how it works</a>
     </div>
 
     <div class="lp-window">
@@ -102,4 +175,59 @@
     </div>
 </section>
 
+<div class="lp-modal" id="howItWorksModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="howItWorksTitle">
+    <div class="lp-modal-card">
+        <button type="button" class="lp-modal-close" id="howItWorksClose" aria-label="Close video">&times;</button>
+        <h2 id="howItWorksTitle" class="lp-sr-only">See how Spendly works</h2>
+        <div class="lp-modal-video">
+            <iframe id="howItWorksFrame"
+                    src=""
+                    data-src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                    title="See how Spendly works"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    var openBtn  = document.getElementById('howItWorksBtn');
+    var modal    = document.getElementById('howItWorksModal');
+    var closeBtn = document.getElementById('howItWorksClose');
+    var frame    = document.getElementById('howItWorksFrame');
+    if (!openBtn || !modal || !closeBtn || !frame) return;
+
+    var videoSrc = frame.getAttribute('data-src');
+
+    function openModal(e) {
+        if (e) e.preventDefault();
+        frame.setAttribute('src', videoSrc);
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('lp-modal-open');
+    }
+
+    function closeModal() {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('lp-modal-open');
+        frame.setAttribute('src', '');
+    }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+    });
+})();
+</script>
 {% endblock %}
