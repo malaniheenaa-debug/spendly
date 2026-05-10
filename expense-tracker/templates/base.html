@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>(function(){try{var t=localStorage.getItem('spendly-theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}}());</script>
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -19,6 +20,13 @@
                 <span class="brand-name">Spendly</span>
             </a>
             <div class="nav-links">
+                <button class="theme-toggle" id="themeToggle" aria-label="Switch to dark mode">
+                    <span class="toggle-track">
+                        <span class="toggle-icon toggle-sun">&#9728;</span>
+                        <span class="toggle-icon toggle-moon">&#9405;</span>
+                        <span class="toggle-knob"></span>
+                    </span>
+                </button>
                 <a href="{{ url_for('login') }}">Sign in</a>
                 <a href="{{ url_for('register') }}" class="nav-cta">Get started</a>
             </div>
@@ -34,6 +42,8 @@
             <span class="brand-icon">◈</span>
             <span class="footer-name">Spendly</span>
             <p class="footer-copy">Track every rupee. Own your finances.</p>
+            <a href="#">Terms and Conditions</a>
+            <a href="#">Privacy Policy</a>
         </div>
     </footer>
 
