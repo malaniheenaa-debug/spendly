@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Terms and Conditions — Spendly{% endblock %}
+
+{% block head %}
+<style>
+    .terms-section {
+        max-width: 820px;
+        margin: 0 auto;
+        padding: 4rem 2rem 5rem;
+    }
+
+    .terms-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .terms-eyebrow {
+        display: inline-block;
+        background: var(--accent-light);
+        color: var(--accent);
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.35rem 0.85rem;
+        border-radius: 999px;
+        margin-bottom: 1.25rem;
+    }
+
+    .terms-title {
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 4vw, 2.75rem);
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        margin-bottom: 0.75rem;
+    }
+
+    .terms-effective {
+        font-size: 0.85rem;
+        color: var(--ink-muted);
+    }
+
+    .terms-effective strong {
+        color: var(--ink-soft);
+        font-weight: 600;
+    }
+
+    .terms-intro {
+        font-size: 1.05rem;
+        color: var(--ink-soft);
+        line-height: 1.75;
+        margin-bottom: 2.5rem;
+    }
+
+    .terms-block {
+        margin-bottom: 2.25rem;
+    }
+
+    .terms-block h2 {
+        font-family: var(--font-display);
+        font-size: 1.4rem;
+        color: var(--ink);
+        margin-bottom: 0.75rem;
+        letter-spacing: -0.01em;
+    }
+
+    .terms-block p {
+        color: var(--ink-soft);
+        font-size: 0.97rem;
+        line-height: 1.75;
+        margin-bottom: 0.75rem;
+    }
+
+    .terms-block ul {
+        list-style: none;
+        padding-left: 0;
+        margin-top: 0.5rem;
+    }
+
+    .terms-block li {
+        position: relative;
+        padding-left: 1.25rem;
+        color: var(--ink-soft);
+        font-size: 0.97rem;
+        line-height: 1.7;
+        margin-bottom: 0.5rem;
+    }
+
+    .terms-block li::before {
+        content: "◈";
+        position: absolute;
+        left: 0;
+        top: 0;
+        color: var(--accent);
+        font-size: 0.7rem;
+        line-height: 1.7rem;
+    }
+
+    .terms-contact {
+        background: var(--paper-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1.75rem;
+        margin-top: 2.5rem;
+    }
+
+    .terms-contact h2 {
+        margin-bottom: 0.5rem;
+    }
+
+    .terms-contact a {
+        color: var(--accent);
+        font-weight: 500;
+    }
+
+    .terms-contact a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+        .terms-section { padding: 2.5rem 1.25rem 3.5rem; }
+        .terms-header { margin-bottom: 2rem; padding-bottom: 1.5rem; }
+        .terms-block { margin-bottom: 1.75rem; }
+        .terms-block h2 { font-size: 1.2rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="terms-section">
+
+    <header class="terms-header">
+        <span class="terms-eyebrow">Legal</span>
+        <h1 class="terms-title">Terms and Conditions</h1>
+        <p class="terms-effective">
+            <strong>Effective date:</strong> 10 May 2026
+        </p>
+    </header>
+
+    <p class="terms-intro">
+        Welcome to Spendly. These Terms and Conditions ("Terms") govern your access
+        to and use of Spendly's expense-tracking application and related services
+        (the "Service"). By creating an account or using the Service, you agree to
+        be bound by these Terms. Please read them carefully.
+    </p>
+
+    <div class="terms-block">
+        <h2>1. Acceptance of Terms</h2>
+        <p>
+            By registering for, accessing, or using Spendly, you confirm that you
+            have read, understood, and agreed to these Terms. If you do not agree,
+            you must stop using the Service. We may update these Terms from time to
+            time, and continued use after changes take effect constitutes acceptance
+            of the revised Terms.
+        </p>
+    </div>
+
+    <div class="terms-block">
+        <h2>2. User Account &amp; Responsibilities</h2>
+        <p>
+            To use most features of Spendly you need to create an account. You are
+            responsible for:
+        </p>
+        <ul>
+            <li>Providing accurate and current information during registration.</li>
+            <li>Keeping your password confidential and secure.</li>
+            <li>All activities that occur under your account.</li>
+            <li>Notifying us promptly of any unauthorised access or use.</li>
+        </ul>
+        <p>
+            You must be at least 13 years old to create an account. Spendly is
+            intended for personal, non-commercial use.
+        </p>
+    </div>
+
+    <div class="terms-block">
+        <h2>3. Data Collection &amp; Privacy</h2>
+        <p>
+            Spendly collects only the information necessary to operate the Service —
+            this includes your account details (such as name and email) and the
+            expense records you choose to log. We do not sell your data to third
+            parties. Full details of how we collect, store, and use information are
+            described in our Privacy Policy.
+        </p>
+    </div>
+
+    <div class="terms-block">
+        <h2>4. Expense Data Ownership</h2>
+        <p>
+            You retain full ownership of every expense, category, and note you
+            create within Spendly. We act as a custodian of that data so we can
+            display it back to you, generate summaries, and provide the Service.
+            You may export or delete your data at any time. Deleting your account
+            removes your expense records from our active systems within a
+            reasonable period.
+        </p>
+    </div>
+
+    <div class="terms-block">
+        <h2>5. Prohibited Activities</h2>
+        <p>When using Spendly, you agree not to:</p>
+        <ul>
+            <li>Use the Service for any unlawful purpose or in violation of any applicable law.</li>
+            <li>Attempt to gain unauthorised access to other accounts, systems, or data.</li>
+            <li>Reverse engineer, scrape, or interfere with the operation of the Service.</li>
+            <li>Upload malicious code, spam, or content that infringes on the rights of others.</li>
+            <li>Use the Service to harass, abuse, or harm another person.</li>
+        </ul>
+    </div>
+
+    <div class="terms-block">
+        <h2>6. Limitation of Liability</h2>
+        <p>
+            Spendly is provided on an "as is" and "as available" basis. While we
+            work hard to keep the Service reliable, accurate, and secure, we make
+            no warranties that it will be uninterrupted or error-free. To the
+            fullest extent permitted by law, Spendly and its contributors are not
+            liable for any indirect, incidental, or consequential damages arising
+            from your use of, or inability to use, the Service — including any
+            financial decisions made based on data shown in the app.
+        </p>
+    </div>
+
+    <div class="terms-block">
+        <h2>7. Changes to Terms</h2>
+        <p>
+            We may revise these Terms from time to time to reflect changes in the
+            Service, our practices, or the law. When we do, we will update the
+            "Effective date" at the top of this page. Material changes will be
+            communicated to you through the app or by email. Your continued use of
+            Spendly after changes take effect means you accept the updated Terms.
+        </p>
+    </div>
+
+    <div class="terms-contact">
+        <h2>8. Contact Information</h2>
+        <p>
+            Questions, concerns, or feedback about these Terms? We'd like to hear
+            from you. Reach the Spendly team at
+            <a href="mailto:support@spendly.app">support@spendly.app</a>.
+        </p>
+    </div>
+
+</section>
+
+{% endblock %}
