@@ -1,0 +1,172 @@
+﻿{% extends "base.html" %}
+{% block title %}Summary Stats — Spendly{% endblock %}
+
+{% block head %}
+<style>
+  .stats-container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 3rem 1rem 4rem;
+  }
+
+  .stats-header {
+    margin-bottom: 2rem;
+  }
+
+  .stats-heading {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+
+  .stats-subheading {
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+  }
+
+  .stats-section {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .stats-section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.875rem;
+  }
+
+  .stat-card {
+    background: var(--accent-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--ink-muted);
+  }
+
+  .empty-state-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--ink-faint);
+  }
+
+  .empty-state-msg {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.65rem 1.25rem;
+    background: var(--paper-card);
+    transition: background 0.15s;
+  }
+
+  .back-link:hover {
+    background: var(--accent-light);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stats-container">
+
+  <div class="stats-header">
+    <h1 class="stats-heading">Summary Stats</h1>
+    <p class="stats-subheading">Your spending at a glance, {{ user_name }}.</p>
+  </div>
+
+  {% if all_time['count'] == 0 %}
+
+    <div class="stats-section">
+      <div class="empty-state">
+        <div class="empty-state-icon">&#9680;</div>
+        <p class="empty-state-msg">No expenses recorded yet.<br>Add your first expense to see stats here.</p>
+      </div>
+    </div>
+
+  {% else %}
+
+    <div class="stats-section">
+      <p class="stats-section-title">This Month</p>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-value">{{ this_month['count'] }}</span>
+          <span class="stat-label">Expenses</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">&#8377;{{ "%.2f"|format(this_month['total']) }}</span>
+          <span class="stat-label">Total Spent</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-section">
+      <p class="stats-section-title">All Time</p>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-value">{{ all_time['count'] }}</span>
+          <span class="stat-label">Expenses</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">&#8377;{{ "%.2f"|format(all_time['total']) }}</span>
+          <span class="stat-label">Total Spent</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">&#8377;{{ "%.2f"|format(all_time['avg']) }}</span>
+          <span class="stat-label">Avg per Expense</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">&#8377;{{ "%.2f"|format(all_time['biggest']) }}</span>
+          <span class="stat-label">Biggest Expense</span>
+        </div>
+      </div>
+    </div>
+
+  {% endif %}
+
+  <a href="{{ url_for('profile') }}" class="back-link">&larr; Back to Profile</a>
+
+</div>
+{% endblock %}

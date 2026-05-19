@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Profile — Spendly{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+
+  <div class="profile-card">
+    <div class="profile-avatar">{{ user['name'][0].upper() }}</div>
+    <h1 class="profile-name">{{ user['name'] }}</h1>
+    <p class="profile-email">{{ user['email'] }}</p>
+    <p class="profile-since">Member since {{ user['created_at'][:10] }}</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-value">{{ stats['count'] }}</span>
+      <span class="stat-label">Expenses</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">&#8377;{{ "%.2f"|format(stats['total']) }}</span>
+      <span class="stat-label">Total Spent</span>
+    </div>
+  </div>
+
+  <div class="profile-nav">
+    <a href="{{ url_for('transaction_history') }}" class="profile-nav-link">Transaction History</a>
+    <a href="{{ url_for('summary_stats') }}" class="profile-nav-link">Summary Stats</a>
+    <a href="{{ url_for('category_breakdown') }}" class="profile-nav-link">Category Breakdown</a>
+  </div>
+
+</div>
+{% endblock %}

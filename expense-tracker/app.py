@@ -1,6 +1,7 @@
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, flash
-from werkzeug.security import generate_password_hash
+from functools import wraps
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from werkzeug.security import generate_password_hash, check_password_hash
 from database.db import init_db, get_db
 
 DEFAULT_CATEGORIES = ["Food", "Travel", "Bills", "Entertainment"]
@@ -10,6 +11,16 @@ app.secret_key = "dev-secret-key"
 
 with app.app_context():
     init_db()
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "user_id" not in session:
+            flash("Please sign in to continue.", "error")
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated
 
 
 # ------------------------------------------------------------------ #
@@ -62,9 +73,33 @@ def register():
     return response
 
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    return render_template("login.html")
+    if request.method == "GET":
+        return render_template("login.html")
+
+    email    = request.form.get("email", "").strip()
+    password = request.form.get("password", "")
+
+    if not email or not password:
+        return render_template("login.html", error="Email and password are required.")
+
+    conn = get_db()
+    try:
+        user = conn.execute(
+            "SELECT id, name, password FROM users WHERE email = ?",
+            (email,)
+        ).fetchone()
+    finally:
+        conn.close()
+
+    if user is None or not check_password_hash(user["password"], password):
+        return render_template("login.html", error="Incorrect email or password.")
+
+    session["user_id"]   = user["id"]
+    session["user_name"] = user["name"]
+    flash(f"Welcome back, {user['name']}!", "success")
+    return redirect(url_for("profile"))
 
 
 @app.route("/terms")
@@ -83,12 +118,102 @@ def privacy():
 
 @app.route("/logout")
 def logout():
-    return "Logout — coming in Step 3"
+    session.clear()
+    flash("You have been signed out.", "success")
+    return redirect(url_for("login"))
 
 
 @app.route("/profile")
+@login_required
 def profile():
-    return "Profile page — coming in Step 4"
+    conn = get_db()
+    try:
+        user = conn.execute(
+            "SELECT id, name, email, created_at FROM users WHERE id = ?",
+            (session["user_id"],)
+        ).fetchone()
+        stats = conn.execute(
+            "SELECT COUNT(*) AS count, COALESCE(SUM(amount), 0) AS total FROM expenses WHERE user_id = ?",
+            (session["user_id"],)
+        ).fetchone()
+    finally:
+        conn.close()
+    return render_template("profile.html", user=user, stats=stats)
+
+
+# ------------------------------------------------------------------ #
+# SECTION A: Transaction History — Subagent 1                        #
+# ------------------------------------------------------------------ #
+@app.route("/profile/history")
+@login_required
+def transaction_history():
+    conn = get_db()
+    try:
+        expenses = conn.execute(
+            """
+            SELECT e.id, e.amount, e.date, e.description,
+                   COALESCE(c.name, 'Uncategorised') AS category
+            FROM expenses e
+            LEFT JOIN categories c ON c.id = e.category_id
+            WHERE e.user_id = ?
+            ORDER BY e.date DESC, e.id DESC
+            """,
+            (session["user_id"],)
+        ).fetchall()
+    finally:
+        conn.close()
+    return render_template("history.html", expenses=expenses, user_name=session["user_name"])
+
+
+# ------------------------------------------------------------------ #
+# SECTION B: Summary Stats — Subagent 2                              #
+# ------------------------------------------------------------------ #
+@app.route("/profile/stats")
+@login_required
+def summary_stats():
+    conn = get_db()
+    try:
+        all_time = conn.execute(
+            "SELECT COUNT(*) AS count, COALESCE(SUM(amount), 0) AS total, COALESCE(AVG(amount), 0) AS avg, COALESCE(MAX(amount), 0) AS biggest FROM expenses WHERE user_id = ?",
+            (session["user_id"],)
+        ).fetchone()
+        this_month = conn.execute(
+            "SELECT COUNT(*) AS count, COALESCE(SUM(amount), 0) AS total FROM expenses WHERE user_id = ? AND strftime('%Y-%m', date) = strftime('%Y-%m', 'now')",
+            (session["user_id"],)
+        ).fetchone()
+    finally:
+        conn.close()
+    return render_template("stats.html", all_time=all_time, this_month=this_month, user_name=session["user_name"])
+
+
+# ------------------------------------------------------------------ #
+# SECTION C: Category Breakdown — Subagent 3                         #
+# ------------------------------------------------------------------ #
+@app.route("/profile/categories")
+@login_required
+def category_breakdown():
+    conn = get_db()
+    try:
+        categories = conn.execute(
+            """
+            SELECT c.name,
+                   COUNT(e.id)                      AS count,
+                   COALESCE(SUM(e.amount), 0)       AS total
+            FROM categories c
+            LEFT JOIN expenses e ON e.category_id = c.id AND e.user_id = ?
+            WHERE c.user_id = ?
+            GROUP BY c.id
+            ORDER BY total DESC
+            """,
+            (session["user_id"], session["user_id"])
+        ).fetchall()
+        grand_total = conn.execute(
+            "SELECT COALESCE(SUM(amount), 0) AS total FROM expenses WHERE user_id = ?",
+            (session["user_id"],)
+        ).fetchone()
+    finally:
+        conn.close()
+    return render_template("categories.html", categories=categories, grand_total=grand_total["total"], user_name=session["user_name"])
 
 
 @app.route("/expenses/add")
