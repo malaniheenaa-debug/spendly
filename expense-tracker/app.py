@@ -1,3 +1,4 @@
+import re
 import sqlite3
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, session
@@ -142,12 +143,26 @@ def profile():
     return render_template("profile.html", user=user, stats=stats)
 
 
+_DATE_RE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+
+
+def _parse_date_params():
+    from_date = request.args.get("from", "").strip() or None
+    to_date   = request.args.get("to",   "").strip() or None
+    for val in (from_date, to_date):
+        if val and not _DATE_RE.match(val):
+            flash("Invalid date format — use YYYY-MM-DD.", "error")
+            return None, None
+    return from_date, to_date
+
+
 # ------------------------------------------------------------------ #
 # SECTION A: Transaction History — Subagent 1                        #
 # ------------------------------------------------------------------ #
 @app.route("/profile/history")
 @login_required
 def transaction_history():
+    from_date, to_date = _parse_date_params()
     conn = get_db()
     try:
         expenses = conn.execute(
@@ -157,13 +172,21 @@ def transaction_history():
             FROM expenses e
             LEFT JOIN categories c ON c.id = e.category_id
             WHERE e.user_id = ?
+              AND (? IS NULL OR e.date >= ?)
+              AND (? IS NULL OR e.date <= ?)
             ORDER BY e.date DESC, e.id DESC
             """,
-            (session["user_id"],)
+            (session["user_id"], from_date, from_date, to_date, to_date)
         ).fetchall()
     finally:
         conn.close()
-    return render_template("history.html", expenses=expenses, user_name=session["user_name"])
+    return render_template(
+        "history.html",
+        expenses=expenses,
+        user_name=session["user_name"],
+        from_date=from_date,
+        to_date=to_date,
+    )
 
 
 # ------------------------------------------------------------------ #
@@ -172,19 +195,46 @@ def transaction_history():
 @app.route("/profile/stats")
 @login_required
 def summary_stats():
+    from_date, to_date = _parse_date_params()
     conn = get_db()
     try:
-        all_time = conn.execute(
-            "SELECT COUNT(*) AS count, COALESCE(SUM(amount), 0) AS total, COALESCE(AVG(amount), 0) AS avg, COALESCE(MAX(amount), 0) AS biggest FROM expenses WHERE user_id = ?",
-            (session["user_id"],)
-        ).fetchone()
-        this_month = conn.execute(
-            "SELECT COUNT(*) AS count, COALESCE(SUM(amount), 0) AS total FROM expenses WHERE user_id = ? AND strftime('%Y-%m', date) = strftime('%Y-%m', 'now')",
-            (session["user_id"],)
-        ).fetchone()
+        if from_date or to_date:
+            filtered = conn.execute(
+                """
+                SELECT COUNT(*) AS count,
+                       COALESCE(SUM(amount), 0) AS total,
+                       COALESCE(AVG(amount), 0) AS avg,
+                       COALESCE(MAX(amount), 0) AS biggest
+                FROM expenses
+                WHERE user_id = ?
+                  AND (? IS NULL OR date >= ?)
+                  AND (? IS NULL OR date <= ?)
+                """,
+                (session["user_id"], from_date, from_date, to_date, to_date)
+            ).fetchone()
+            all_time   = None
+            this_month = None
+        else:
+            filtered = None
+            all_time = conn.execute(
+                "SELECT COUNT(*) AS count, COALESCE(SUM(amount), 0) AS total, COALESCE(AVG(amount), 0) AS avg, COALESCE(MAX(amount), 0) AS biggest FROM expenses WHERE user_id = ?",
+                (session["user_id"],)
+            ).fetchone()
+            this_month = conn.execute(
+                "SELECT COUNT(*) AS count, COALESCE(SUM(amount), 0) AS total FROM expenses WHERE user_id = ? AND strftime('%Y-%m', date) = strftime('%Y-%m', 'now')",
+                (session["user_id"],)
+            ).fetchone()
     finally:
         conn.close()
-    return render_template("stats.html", all_time=all_time, this_month=this_month, user_name=session["user_name"])
+    return render_template(
+        "stats.html",
+        all_time=all_time,
+        this_month=this_month,
+        filtered=filtered,
+        user_name=session["user_name"],
+        from_date=from_date,
+        to_date=to_date,
+    )
 
 
 # ------------------------------------------------------------------ #
@@ -193,28 +243,46 @@ def summary_stats():
 @app.route("/profile/categories")
 @login_required
 def category_breakdown():
+    from_date, to_date = _parse_date_params()
     conn = get_db()
     try:
         categories = conn.execute(
             """
             SELECT c.name,
-                   COUNT(e.id)                      AS count,
-                   COALESCE(SUM(e.amount), 0)       AS total
+                   COUNT(e.id)                AS count,
+                   COALESCE(SUM(e.amount), 0) AS total
             FROM categories c
-            LEFT JOIN expenses e ON e.category_id = c.id AND e.user_id = ?
+            LEFT JOIN expenses e
+                   ON e.category_id = c.id
+                  AND e.user_id = ?
+                  AND (? IS NULL OR e.date >= ?)
+                  AND (? IS NULL OR e.date <= ?)
             WHERE c.user_id = ?
             GROUP BY c.id
             ORDER BY total DESC
             """,
-            (session["user_id"], session["user_id"])
+            (session["user_id"], from_date, from_date, to_date, to_date, session["user_id"])
         ).fetchall()
         grand_total = conn.execute(
-            "SELECT COALESCE(SUM(amount), 0) AS total FROM expenses WHERE user_id = ?",
-            (session["user_id"],)
+            """
+            SELECT COALESCE(SUM(amount), 0) AS total
+            FROM expenses
+            WHERE user_id = ?
+              AND (? IS NULL OR date >= ?)
+              AND (? IS NULL OR date <= ?)
+            """,
+            (session["user_id"], from_date, from_date, to_date, to_date)
         ).fetchone()
     finally:
         conn.close()
-    return render_template("categories.html", categories=categories, grand_total=grand_total["total"], user_name=session["user_name"])
+    return render_template(
+        "categories.html",
+        categories=categories,
+        grand_total=grand_total["total"],
+        user_name=session["user_name"],
+        from_date=from_date,
+        to_date=to_date,
+    )
 
 
 @app.route("/expenses/add")

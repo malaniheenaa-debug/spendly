@@ -90,6 +90,72 @@
     line-height: 1.6;
   }
 
+  .date-filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding: 1rem 1.25rem;
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .filter-fields {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+  .filter-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-muted);
+  }
+  .filter-input {
+    padding: 0.45rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+  }
+  .filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .filter-btn {
+    padding: 0.5rem 1.1rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .filter-btn:hover { opacity: 0.85; }
+  .filter-clear {
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .filter-clear:hover { color: var(--ink); }
+  .filter-active-label {
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    margin-bottom: 1rem;
+  }
+
   .back-link {
     display: inline-block;
     margin-top: 1.5rem;
@@ -117,7 +183,68 @@
     <p class="stats-subheading">Your spending at a glance, {{ user_name }}.</p>
   </div>
 
-  {% if all_time['count'] == 0 %}
+  <form class="date-filter-form" method="get" action="">
+    <div class="filter-fields">
+      <label class="filter-label">
+        From
+        <input class="filter-input" type="date" name="from" value="{{ from_date or '' }}">
+      </label>
+      <label class="filter-label">
+        To
+        <input class="filter-input" type="date" name="to" value="{{ to_date or '' }}">
+      </label>
+    </div>
+    <div class="filter-actions">
+      <button class="filter-btn" type="submit">Filter</button>
+      {% if from_date or to_date %}
+      <a class="filter-clear" href="{{ request.path }}">Clear</a>
+      {% endif %}
+    </div>
+  </form>
+  {% if from_date or to_date %}
+  <p class="filter-active-label">
+    Showing results
+    {% if from_date %} from <strong>{{ from_date }}</strong>{% endif %}
+    {% if to_date %} to <strong>{{ to_date }}</strong>{% endif %}
+  </p>
+  {% endif %}
+
+  {% if filtered is not none %}
+
+    {% if filtered['count'] == 0 %}
+    <div class="stats-section">
+      <div class="empty-state">
+        <div class="empty-state-icon">&#9680;</div>
+        <p class="empty-state-msg">No expenses in this date range.</p>
+      </div>
+    </div>
+    {% else %}
+    <div class="stats-section">
+      <p class="stats-section-title">Filtered Period</p>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-value">{{ filtered['count'] }}</span>
+          <span class="stat-label">Expenses</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">&#8377;{{ "%.2f"|format(filtered['total']) }}</span>
+          <span class="stat-label">Total Spent</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">&#8377;{{ "%.2f"|format(filtered['avg']) }}</span>
+          <span class="stat-label">Avg per Expense</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">&#8377;{{ "%.2f"|format(filtered['biggest']) }}</span>
+          <span class="stat-label">Biggest Expense</span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  {% else %}
+
+    {% if all_time['count'] == 0 %}
 
     <div class="stats-section">
       <div class="empty-state">
@@ -126,7 +253,7 @@
       </div>
     </div>
 
-  {% else %}
+    {% else %}
 
     <div class="stats-section">
       <p class="stats-section-title">This Month</p>
@@ -163,6 +290,8 @@
         </div>
       </div>
     </div>
+
+    {% endif %}
 
   {% endif %}
 
