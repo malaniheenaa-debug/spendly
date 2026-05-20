@@ -96,6 +96,7 @@ def login():
     if user is None or not check_password_hash(user["password"], password):
         return render_template("login.html", error="Incorrect email or password.")
 
+    session.clear()
     session["user_id"]   = user["id"]
     session["user_name"] = user["name"]
     flash(f"Welcome back, {user['name']}!", "success")
