@@ -1,0 +1,2 @@
+- [Spendly Domain Facts](project-spendly-domain.md) — Schema, route behavior, auth pattern, date-filter rules, flash message text
+- [Test Suite Conventions](project-test-conventions.md) — In-memory DB patch, session injection, fixture hierarchy, HTML assertion patterns
