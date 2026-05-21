@@ -3,7 +3,7 @@ import sqlite3
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
-from database.db import init_db, get_db
+from database.db import init_db, get_db, get_categories, add_expense as db_add_expense
 
 DEFAULT_CATEGORIES = ["Food", "Travel", "Bills", "Entertainment"]
 
@@ -285,9 +285,50 @@ def category_breakdown():
     )
 
 
-@app.route("/expenses/add")
+@app.route("/analytics")
+@login_required
+def analytics():
+    return render_template("analytics.html")
+
+
+@app.route("/expenses/add", methods=["GET", "POST"])
+@login_required
 def add_expense():
-    return "Add expense — coming in Step 7"
+    if request.method == "GET":
+        return render_template("add_expense.html", categories=get_categories(session["user_id"]))
+
+    amount = request.form.get("amount", "").strip()
+    date = request.form.get("date", "").strip()
+    description = request.form.get("description", "").strip()
+    category_id = request.form.get("category_id") or None
+
+    error = None
+    if not amount:
+        error = "Amount is required."
+    else:
+        try:
+            amount = float(amount)
+            if amount <= 0:
+                raise ValueError
+        except ValueError:
+            error = "Amount must be a positive number."
+
+    if not error and not date:
+        error = "Date is required."
+    elif not error and not _DATE_RE.match(date):
+        error = "Date must be in YYYY-MM-DD format."
+
+    if error:
+        return render_template(
+            "add_expense.html",
+            categories=get_categories(session["user_id"]),
+            error=error,
+            form=request.form,
+        )
+
+    db_add_expense(session["user_id"], category_id, amount, date, description)
+    flash("Expense added.", "success")
+    return redirect(url_for("profile"))
 
 
 @app.route("/expenses/<int:id>/edit")

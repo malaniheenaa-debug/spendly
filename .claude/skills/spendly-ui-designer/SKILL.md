@@ -197,7 +197,7 @@ Concretely:
 - **Motion** — sparing. `transition: 0.15s ease` on hover states. No bouncy animations.
 - **Icons** — use Unicode symbols (◈, ›, ✕, ↗) as the codebase already does, or inline SVGs. Don't add an icon-font dependency.
 - **Currency** — Spendly is INR-flavored based on the seed data. Use `₹` and Indian number formatting (`12,450` not `12450`).
-- **Charts** — if you need a simple bar/pie, build it in pure CSS or inline SVG. Don't add Chart.js unless the page genuinely needs interactive charts.
+- **Charts** — if you need a simple bar/pie, build it in pure CSS or inline SVG. Don't add Chart.js /unless the page genuinely needs interactive charts.
 
 ## Examples of how to interpret requests
 

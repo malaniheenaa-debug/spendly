@@ -1,59 +1,112 @@
-# CLAUDE.md
+Here is the same content with headings highlighted and bolded:
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+---
 
-## Commands
+**# Project Overview**
+Spendly is a lightweight personal expense tracker built with Flask and SQLite.
 
+---
+
+**## Architecture**
+```
+spendly/
+├── app.py              # All routes — single file, no blueprints
+├── database/
+│   └── db.py           # SQLite helpers: get_db(), init_db(), seed_db()
+├── templates/
+│   ├── base.html       # Shared layout — all templates must extend this
+│   └── *.html          # One template per page
+├── static/
+│   ├── css/
+│   │   ├── style.css       # Global styles
+│   │   └── landing.css     # Landing-page-only styles
+│   └── js/
+│       └── main.js         # Vanilla JS only
+└── requirements.txt
+```
+
+**Where things belong:**
+- New routes → app.py only, no blueprints
+- DB logic → database/db.py only, never inline in routes
+- New pages → new .html file extending base.html
+- Page-specific styles → new .css file, not inline `<style>` tags
+
+---
+
+**## Code Style**
+- Python: PEP 8, snake_case for all variables and functions
+- Templates: Jinja2 with `url_for()` for every internal link — never hardcode URLs
+- Route functions: one responsibility only — fetch data, render template, done
+- DB queries: always use parameterized queries (`?` placeholders) — never f-strings in SQL
+- Error handling: use `abort()` for HTTP errors, not bare `return "error string"`
+
+---
+
+**## Tech Constraints**
+- Flask only — no FastAPI, no Django, no other web frameworks
+- SQLite only — no PostgreSQL, no SQLAlchemy ORM, no external DB
+- Vanilla JS only — no React, no jQuery, no npm packages
+- No new pip packages — work within requirements.txt as-is unless explicitly told otherwise
+- Python 3.10+ assumed — f-strings and match statements are fine
+
+---
+
+**## Subagent Policy**
+- Always use a builtin explore subagent for codebase exploration before implementing any new feature
+- Always use a subagent to verify test results after any implementation
+- When asked to plan, delegate codebase research to a subagent before presenting the plan
+- Always use a builtin plan subagent in plan mode
+
+---
+
+**## Commands**
 ```bash
-# Run the development server (port 5001)
+# Setup
+python -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Run dev server (port 5001)
 python app.py
 
-# Run tests
+# Run all tests
 pytest
 
-# Run a single test file
-pytest tests/test_auth.py
+# Run a specific test file
+pytest tests/test_foo.py
 
-# Run tests with output
-pytest -v
+# Run a specific test by name
+pytest -k "test_name"
+
+# Run tests with output visible
+pytest -s
 ```
 
-The app requires a `venv` — activate it before running:
-```bash
-# Windows
-venv\Scripts\activate
+---
 
-# macOS/Linux
-source venv/bin/activate
-```
+**## Implemented vs Stub Routes**
 
-## Architecture
+| Route | Status |
+|---|---|
+| GET / | Implemented — renders landing.html |
+| GET /register | Implemented — renders register.html |
+| GET /login | Implemented — renders login.html |
+| GET /logout | Stub — Step 3 |
+| GET /profile | Stub — Step 4 |
+| GET /expenses/add | Stub — Step 7 |
+| GET /expenses/<id>/edit | Stub — Step 8 |
+| GET /expenses/<id>/delete | Stub — Step 9 |
 
-**Spendly** is a Flask expense-tracker web app backed by SQLite. The project is structured as a step-by-step student exercise; many routes are stubs that students fill in.
+Do not implement a stub route unless the active task explicitly targets that step.
 
-### Key files
+---
 
-- `app.py` — All Flask routes. Currently has live routes for landing, register, login, terms, privacy; stub routes for logout, profile, and expense CRUD.
-- `database/db.py` — SQLite helper (students implement): `get_db()` returns a connection with `row_factory` and foreign keys enabled; `init_db()` creates tables; `seed_db()` inserts sample data.
-- `templates/base.html` — Shared layout: navbar with dark/light toggle, footer with Terms/Privacy links. All other templates extend this.
-- `static/js/main.js` — Theme toggle only; persists choice in `localStorage` under key `spendly-theme`. Dark mode is activated by setting `data-theme="dark"` on `<html>`.
-- `static/css/style.css` — Global styles (used by all pages via `base.html`).
-- `static/css/landing.css` — Landing-page-specific styles.
-
-### Template pattern
-
-All pages extend `base.html` and fill `{% block title %}`, `{% block head %}` (extra CSS/JS), `{% block content %}`, and optionally `{% block scripts %}`.
-
-### Database conventions (for when `db.py` is implemented)
-
-- Use `sqlite3` with `row_factory = sqlite3.Row` so rows are dict-like.
-- Enable foreign keys with `PRAGMA foreign_keys = ON` in `get_db()`.
-- Schema created with `CREATE TABLE IF NOT EXISTS`.
-
-### Planned step progression
-
-Routes marked "coming in Step N" in `app.py` indicate the order students will implement features:
-- Step 1: Database setup (`database/db.py`)
-- Step 3: Auth (login/logout/session)
-- Step 4: User profile
-- Steps 7–9: Expense add / edit / delete
+**## Warnings and Things to Avoid**
+- Never use raw string returns for stub routes once a step is implemented — always render a template
+- Never hardcode URLs in templates — always use `url_for()`
+- Never put DB logic in route functions — it belongs in `database/db.py`
+- Never install new packages mid-feature without flagging it — keep requirements.txt in sync
+- Never use JS frameworks — the frontend is intentionally vanilla
+- `database/db.py` is currently empty — do not assume helpers exist until the step that implements them
+- FK enforcement is manual — SQLite foreign keys are off by default; `get_db()` must run `PRAGMA foreign_keys = ON` on every connection
+- The app runs on port 5001, not the Flask default 5000 — don't change this
