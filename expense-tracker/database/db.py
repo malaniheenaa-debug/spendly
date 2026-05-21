@@ -45,6 +45,36 @@ def init_db():
     conn.close()
 
 
+def get_categories(user_id):
+    conn = get_db()
+    try:
+        return conn.execute(
+            "SELECT id, name FROM categories WHERE user_id = ? ORDER BY name",
+            (user_id,)
+        ).fetchall()
+    finally:
+        conn.close()
+
+
+def add_expense(user_id, category_id, amount, date, description):
+    conn = get_db()
+    try:
+        if category_id is not None:
+            row = conn.execute(
+                "SELECT id FROM categories WHERE id = ? AND user_id = ?",
+                (category_id, user_id)
+            ).fetchone()
+            if row is None:
+                category_id = None
+        conn.execute(
+            "INSERT INTO expenses (user_id, category_id, amount, date, description) VALUES (?, ?, ?, ?, ?)",
+            (user_id, category_id, amount, date, description)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def seed_db():
     conn = get_db()
     conn.executescript("""
