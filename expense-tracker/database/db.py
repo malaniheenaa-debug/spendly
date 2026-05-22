@@ -101,6 +101,18 @@ def update_expense(expense_id, user_id, category_id, amount, date, description):
         conn.close()
 
 
+def delete_expense(expense_id, user_id):
+    conn = get_db()
+    try:
+        conn.execute(
+            "DELETE FROM expenses WHERE id = ? AND user_id = ?",
+            (expense_id, user_id)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def seed_db():
     conn = get_db()
     conn.executescript("""
