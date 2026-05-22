@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Expense — Spendly{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1 class="auth-title">Edit Expense</h1>
+            <p class="auth-subtitle">Update the details of this expense.</p>
+        </div>
+        <div class="auth-card">
+            {% if error %}
+            <div class="auth-error">{{ error }}</div>
+            {% endif %}
+            <form method="POST" action="{{ url_for('edit_expense', id=expense.id) }}">
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" name="amount" class="form-input"
+                           placeholder="0.00" step="0.01" min="0.01"
+                           value="{{ form.amount if form else expense.amount }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" class="form-input"
+                           value="{{ form.date if form else expense.date }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description <span class="label-hint">(optional)</span></label>
+                    <input type="text" id="description" name="description" class="form-input"
+                           placeholder="e.g. Grocery run"
+                           value="{{ form.description if form else (expense.description or '') }}">
+                </div>
+                <div class="form-group">
+                    <label for="category_id">Category <span class="label-hint">(optional)</span></label>
+                    <select id="category_id" name="category_id" class="form-input">
+                        <option value="">No category</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}"
+                            {% if form %}
+                                {% if form.category_id == cat.id|string %}selected{% endif %}
+                            {% else %}
+                                {% if expense.category_id == cat.id %}selected{% endif %}
+                            {% endif %}>
+                            {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Save Changes</button>
+            </form>
+            <p style="margin-top:1rem;text-align:center;font-size:0.875rem;">
+                <a href="{{ url_for('transaction_history') }}" style="color:var(--ink-muted);text-decoration:none;">Cancel</a>
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -75,6 +75,32 @@ def add_expense(user_id, category_id, amount, date, description):
         conn.close()
 
 
+def get_expense(expense_id, user_id):
+    conn = get_db()
+    try:
+        return conn.execute(
+            "SELECT id, user_id, category_id, amount, date, description FROM expenses WHERE id = ? AND user_id = ?",
+            (expense_id, user_id)
+        ).fetchone()
+    finally:
+        conn.close()
+
+
+def update_expense(expense_id, user_id, category_id, amount, date, description):
+    conn = get_db()
+    try:
+        conn.execute(
+            """UPDATE expenses
+               SET category_id = ?, amount = ?, date = ?, description = ?,
+                   updated_at = CURRENT_TIMESTAMP
+               WHERE id = ? AND user_id = ?""",
+            (category_id, amount, date, description, expense_id, user_id)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def seed_db():
     conn = get_db()
     conn.executescript("""
