@@ -1,9 +1,9 @@
 import re
 import sqlite3
 from functools import wraps
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
 from werkzeug.security import generate_password_hash, check_password_hash
-from database.db import init_db, get_db, get_categories, add_expense as db_add_expense
+from database.db import init_db, get_db, get_categories, add_expense as db_add_expense, get_expense, update_expense
 
 DEFAULT_CATEGORIES = ["Food", "Travel", "Bills", "Entertainment"]
 
@@ -331,9 +331,53 @@ def add_expense():
     return redirect(url_for("profile"))
 
 
-@app.route("/expenses/<int:id>/edit")
+@app.route("/expenses/<int:id>/edit", methods=["GET", "POST"])
+@login_required
 def edit_expense(id):
-    return "Edit expense — coming in Step 8"
+    expense = get_expense(id, session["user_id"])
+    if expense is None:
+        abort(404)
+
+    if request.method == "GET":
+        return render_template(
+            "edit_expense.html",
+            expense=expense,
+            categories=get_categories(session["user_id"]),
+        )
+
+    amount      = request.form.get("amount", "").strip()
+    date        = request.form.get("date", "").strip()
+    description = request.form.get("description", "").strip()
+    category_id = request.form.get("category_id") or None
+
+    error = None
+    if not amount:
+        error = "Amount is required."
+    else:
+        try:
+            amount = float(amount)
+            if amount <= 0:
+                raise ValueError
+        except ValueError:
+            error = "Amount must be a positive number."
+
+    if not error and not date:
+        error = "Date is required."
+    elif not error and not _DATE_RE.match(date):
+        error = "Date must be in YYYY-MM-DD format."
+
+    if error:
+        return render_template(
+            "edit_expense.html",
+            expense=expense,
+            categories=get_categories(session["user_id"]),
+            error=error,
+            form=request.form,
+        )
+
+    update_expense(id, session["user_id"], category_id, amount, date, description)
+    flash("Expense updated.", "success")
+    return redirect(url_for("transaction_history"))
 
 
 @app.route("/expenses/<int:id>/delete")

@@ -113,6 +113,25 @@
         white-space: nowrap;
     }
 
+    .td-actions {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .btn-edit {
+        font-size: 0.8rem;
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--radius-sm);
+        transition: background 0.12s;
+    }
+
+    .btn-edit:hover {
+        background: var(--accent-light);
+    }
+
     /* Date filter */
     .date-filter-form {
         display: flex;
@@ -249,6 +268,7 @@
                     <th>Category</th>
                     <th>Description</th>
                     <th class="col-amount">Amount</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -264,6 +284,9 @@
                         {% endif %}
                     </td>
                     <td class="td-amount">&#8377;{{ "%.2f"|format(e['amount']) }}</td>
+                    <td class="td-actions">
+                        <a href="{{ url_for('edit_expense', id=e['id']) }}" class="btn-edit">Edit</a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
